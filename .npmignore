@@ -1,0 +1,10 @@
+*.tgz
+.github
+.vscode
+.eslintignore
+.eslintrc.json
+bin/
+sample/
+src/
+test/
+tsconfig.json

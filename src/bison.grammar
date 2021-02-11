@@ -1,0 +1,48 @@
+@top Grammar {
+  "%{"
+  Prologue 
+  "%}"
+  BisonDeclarations
+  "%%"
+  GrammarRules
+  "%%"
+  Epilogue
+}
+
+Prologue {
+  (token | dq_string | sq_string )*
+}
+
+BisonDeclarations {
+  (token | dq_string | sq_string )*
+}
+
+GrammarRules {
+  (token | dq_string | sq_string )*
+}
+
+Epilogue {
+  (token | dq_string | sq_string )*
+}
+
+/*
+skipComment {
+  whitespace | comment | blockComment
+}
+*/
+
+@tokens {
+  token { !["'% \n\r\t/] | normal_percent | normal_slash }
+  normal_percent { "%" ![%{}]  }
+  normal_slash { "/" ![/*] }
+  dq_string { '"' dq_char* '"' }
+  dq_char { $[\u{20}\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}] | "\\" esc }
+  sq_string { "'" sq_char "'" }
+  sq_char { $[\u{20}-\u{26}\u{28}-\u{5b}\u{5d}-\u{10ffff}] | "\\" esc }
+  esc { $["\\bfnrtu] }
+  whitespace { $[ \n\r\t] }
+  comment { "//" ![\r\n]* }
+  blockComment { "/*" (![*] | "*" ![/])* "*/" }
+}
+
+@skip { whitespace | comment | blockComment }

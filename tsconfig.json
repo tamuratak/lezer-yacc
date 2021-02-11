@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "alwaysStrict": true,
+        "declaration": true,
+        "declarationDir": "out/types",
+        "forceConsistentCasingInFileNames": true,
+        "lib": [
+            "es2017"
+        ],
+        "module": "CommonJS",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "outDir": "out",
+        "sourceRoot": "src",
+        "rootDir": ".",
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "target": "es2017"
+    },
+    "exclude": [
+        "node_modules",
+        "out"
+    ]
+}
