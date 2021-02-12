@@ -39,10 +39,10 @@ skipComment {
   dq_char { $[\u{20}\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}] | "\\" esc }
   sq_string { "'" sq_char "'" }
   sq_char { $[\u{20}-\u{26}\u{28}-\u{5b}\u{5d}-\u{10ffff}] | "\\" esc }
-  esc { $["\\bfnrtu] }
+  esc { $["'\\abfnrtv?] | $[0-7]$[0-7]?$[0-7]? | "x" $[0-9a-fA-F]$[0-9a-fA-F]?$[0-9a-fA-F]? }
   whitespace { $[ \n\r\t] }
   comment { "//" ![\r\n]* }
-  blockComment { "/*" (![*] | "*" ![/])* "*/" }
+  blockComment { "/*" (![*] | "*"+ ![*/])* "*"* "*/" }
 }
 
 @skip { whitespace | comment | blockComment }
