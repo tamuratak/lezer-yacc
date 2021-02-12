@@ -1,7 +1,5 @@
 @top Grammar {
-  "%{"
   Prologue 
-  "%}"
   BisonDeclarations
   "%%"
   GrammarRules
@@ -10,31 +8,271 @@
 }
 
 Prologue {
+  "%{"
   (token | dq_string | sq_string )*
-}
-
-BisonDeclarations {
-  (token | dq_string | sq_string )*
+  "%}"
 }
 
 GrammarRules {
-  (token | dq_string | sq_string )*
+  Rule*
+}
+
+Rule {
+  Identifier ":" ChoiceExpr ";"
+}
+
+ChoiceExpr {
+  ( "|" Sequence )+ |
+  Sequence ( "|" Sequence )*
+}
+
+Sequence {
+  (Identifier | LiteralExpr | MidRuleAction | Modifier)+
+}
+
+LiteralExpr {
+  dq_string | sq_string
+}
+
+MidRuleAction {
+  "{" Code "}"
+}
+
+Modifier {
+  "%prec" | "%empty"
+}
+
+BisonDeclarations {
+  bisonDecl*
+}
+
+bisonDecl {
+  UnionDecl |
+  RequireDecl |
+  TokenDecl |
+  PrecedenceDecl |
+  TypeDecl |
+  NtermDecl |
+  InitialActionDecl |
+  DestructorDecl |
+  PrinterDecl |
+  ExpectDecl |
+  StartDecl |
+  DefineDecl |
+  DefinesDecl |
+  FilePrefixDecl |
+  LanguageDecl |
+  GlrParserDecl |
+  LexParamDecl |
+  NamePrefixDecl |
+  NoLinesDecl |
+  OutputDecl |
+  PureParserDecl |
+  ParamDecl |
+  ParseParamDecl |
+  SkeltonDecl |
+  VerboseDecl |
+  YaccDecl |
+  CodeDecl
+}
+
+UnionDecl {
+  "%union" "{" Code "}"
+}
+
+RequireDecl {
+  "%require" LiteralString
+}
+
+TokenDecl {
+  "%token" TypeTag? TokenIdentifier+ |
+  "%token" TypeTag? TokenDeclEntry+ (TypeTag TokenDeclEntry+)*
+}
+
+TokenIdentifier {
+  identifier | sq_string
+}
+
+TokenDeclEntry {
+  TokenIdentifier TokenNumber? LiteralString
+}
+
+TypeTag {
+  "<" non_bracket ">"
+}
+
+TokenNumber {
+  number
+}
+
+PrecedenceDecl {
+  PrecedenceDirective TypeTag? PrecedenceIdentifier+ |
+  PrecedenceDirective TypeTag? PrecedenceDeclEntry+ (TypeTag PrecedenceDeclEntry+)*
+}
+
+PrecedenceDeclEntry {
+  PrecedenceIdentifier PrecedenceNumber
+}
+
+PrecedenceDirective {
+  "%left" | "%right" | "%precedence" | "%nonassoc"
+}
+
+PrecedenceIdentifier {
+  identifier | dq_string | sq_string
+}
+
+PrecedenceNumber {
+  number
+}
+
+TypeDecl {
+  "%type" TypeTag? TypeIdentifier+ (TypeTag TypeIdentifier+)*
+}
+
+TypeIdentifier {
+  identifier | dq_string | sq_string
+}
+
+NtermDecl {
+  "%nterm" TypeTag? Identifier+ (TypeTag Identifier+)*
+}
+
+InitialActionDecl {
+  "%initial-action" "{" Code "};"
+}
+
+DestructorDecl {
+  "%destructor" "{" Code "}" DestructorSymbols
+}
+
+DestructorSymbols {
+  Identifier+ | TypeTag | "<>" | "<*>"
+}
+
+PrinterDecl {
+  "%printer" "{" Code "}" PrinterSymbols
+}
+
+PrinterSymbols {
+  Identifier+ | TypeTag | "<>" | "<*>"
+}
+
+ExpectDecl {
+  ExpectDirective ExpectNumber
+}
+
+ExpectDirective {
+  "%expect" | "%expect-rr"
+}
+
+ExpectNumber {
+  number
+}
+
+StartDecl {
+  "%start" Identifier
+}
+
+DefineDecl {
+  "%define" Identifier DefineValue?
+}
+
+DefineValue {
+  identifier | "{" non_brace "}" | dq_string
+}
+
+DefinesDecl {
+  "%defines" LiteralString
+}
+
+FilePrefixDecl {
+  "%file-prefix" LiteralString
+}
+
+LanguageDecl {
+  "%language" LiteralString
+}
+
+GlrParserDecl {
+  "%glr-parser"
+}
+
+LexParamDecl {
+  "%lex-param" "{" Code "}"
+}
+
+NamePrefixDecl {
+  "%name-prefix" LiteralString
+}
+
+NoLinesDecl {
+  "%no-lines"
+}
+
+OutputDecl {
+  "%output" LiteralString
+}
+
+PureParserDecl {
+  "%pure-parser"
+}
+
+ParamDecl {
+  "%param" ("{" Code "}")+
+}
+
+ParseParamDecl {
+  "%parse-param" ("{" Code "}")+
+}
+
+SkeltonDecl {
+  "%skeleton" LiteralString
+}
+
+VerboseDecl {
+  "%verbose"
+}
+
+YaccDecl {
+  "%yacc"
+}
+
+CodeDecl {
+  "%code" "{" Code "}" |
+  "%code" CodeQualifier "{" Code "}"
+}
+
+CodeQualifier {
+  "requires" | "provides" | "top" | "imports"
 }
 
 Epilogue {
   (token | dq_string | sq_string )*
 }
 
-/*
-skipComment {
-  whitespace | comment | blockComment
+Code {
+  (non_brace | dq_string | sq_string | "{" Code "}")*
 }
-*/
+
+Identifier {
+  identifier
+}
+
+LiteralString {
+  dq_string
+}
 
 @tokens {
+  identifier {
+    $[a-zA-Z_\-] $[a-zA-Z0-9_\-.]*
+  }
+  number { $[0-9]+ | "0x" $[0-9A-Fa-f]+ }
   token { !["'% \n\r\t/] | normal_percent | normal_slash }
   normal_percent { "%" ![%{}]  }
   normal_slash { "/" ![/*] }
+  non_brace { (![{}"' \n\r\t/] | normal_slash)+  }
+  non_bracket { (![<>"' \n\r\t/] | normal_slash)+  }
   dq_string { '"' dq_char* '"' }
   dq_char { $[\u{20}\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}] | "\\" esc }
   sq_string { "'" sq_char "'" }
